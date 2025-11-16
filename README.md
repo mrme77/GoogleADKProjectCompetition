@@ -105,10 +105,10 @@ MANIS automates what humans don't have time for:
 
 <div align="center">
 
-![Agent Pipeline](manis_agent/pictures/Screenshot%202025-11-15%20at%206.23.40%20PM.png)
+![Agent Pipeline](<manis_agent/pictures/Screenshot 2025-11-15 at 6.23.40 PM.png>)
 *6-Stage Sequential Agent Pipeline*
 
-![Agent-Tool Relationships](manis_agent/pictures/Screenshot%202025-11-15%20at%206.23.52%20PM.png)
+![Agent-Tool Relationships](<manis_agent/pictures/Screenshot 2025-11-15 at 6.23.52 PM.png>)
 *Detailed Agent-Tool Relationships*
 
 </div>
@@ -401,7 +401,7 @@ Each digest includes **6 comprehensive sections**:
 
 <div align="center">
 
-![Sample Email Digest](manis_agent/pictures/Screenshot%202025-11-15%20at%208.08.41%20PM.png)
+![Sample Email Digest](<manis_agent/pictures/Screenshot 2025-11-15 at 8.08.41 PM.png>)
 *Sample Daily News Digest Output*
 
 </div>
@@ -554,16 +554,6 @@ chmod +x run_manis.sh setup_cron.sh
 
 ---
 
-## Documentation
-
-- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Detailed step-by-step setup with validation checkpoints
-- **[CRON_SETUP.md](CRON_SETUP.md)** - Complete automation guide with macOS troubleshooting
-- **[ARCHITECTURE.md](templates/ARCHITECTURE.md)** - Technical deep-dive into agent design, tools, and extension guide
-- **[COMPETITION_SUBMISSION.md](COMPETITION_SUBMISSION.md)** - Full project writeup for Google ADK Competition
-- **[PROJECT_WRITEUP.md](PROJECT_WRITEUP.md)** - Narrative format: problem, solution, build journey
-
----
-
 ## Project Structure
 
 ```
@@ -603,68 +593,6 @@ manis/
 └── templates/
     └── ARCHITECTURE.md            # Technical reference
 ```
-
----
-
-## Extension Guide
-
-### Adding a New News Source
-
-Create a new collector agent:
-
-```python
-# manis_agent/agents/collectors/reuters_collector/tools.py
-def fetch_reuters_rss(topic, max_articles, tool_context):
-    # Fetch from Reuters RSS
-    articles = parse_feed("https://www.reuters.com/rssFeed/...")
-    tool_context.state['reuters_articles'] = articles
-    return {'success': True, 'articles': articles}
-
-# manis_agent/agents/collectors/reuters_collector/agent.py
-from google.adk.agents import LlmAgent
-from .tools import fetch_reuters_rss
-
-reuters_agent = LlmAgent(
-    name="reuters_collector",
-    model="gemini-2.0-flash-lite",
-    tools=[fetch_reuters_rss]
-)
-```
-
-Use `ParallelAgent` in root:
-
-```python
-from google.adk.agents import ParallelAgent, SequentialAgent
-
-parallel_collectors = ParallelAgent(
-    sub_agents=[google_news_agent, reuters_agent]
-)
-
-root_agent = SequentialAgent(
-    sub_agents=[parallel_collectors, preprocessor_agent, ...]
-)
-```
-
-### Adding Slack Delivery
-
-```python
-# manis_agent/agents/delivery/tools.py
-import requests
-
-def send_to_slack(tool_context):
-    digest = tool_context.state.get('daily_digest')
-    webhook_url = os.getenv('SLACK_WEBHOOK_URL')
-
-    payload = {
-        'text': convert_html_to_slack(digest),
-        'username': 'MANIS Bot'
-    }
-
-    response = requests.post(webhook_url, json=payload)
-    return {'success': response.ok}
-```
-
-See **[ARCHITECTURE.md](templates/ARCHITECTURE.md)** for complete extension guide.
 
 ---
 
@@ -714,23 +642,14 @@ A: **Free!** Google Gemini API has a generous free tier (1,500 requests/day). MA
 **Q: Can I change the schedule?**
 A: Yes! Edit `setup_cron.sh` before running, or modify crontab directly with `crontab -e`.
 
-**Q: Can I add more news sources?**
-A: Yes! See the [Extension Guide](#extension-guide) or [ARCHITECTURE.md](templates/ARCHITECTURE.md) for details.
-
 **Q: Does this work on Windows/Linux?**
 A: Code is cross-platform. For Windows, replace cron with Task Scheduler. For Linux, same cron setup as macOS.
 
 **Q: How do I stop automated runs?**
 A: `crontab -e` (delete MANIS lines) or `crontab -r` (remove all jobs).
 
-**Q: Can I run this on a cloud server?**
-A: Yes! Deploy to Google Cloud Run, AWS Lambda, or a Linux VPS. See [ARCHITECTURE.md](templates/ARCHITECTURE.md) for deployment options.
-
 **Q: What happens if my Mac sleeps during a scheduled run?**
 A: The job is skipped (won't run when Mac wakes). Use `caffeinate -s &` to prevent sleep.
-
-**Q: Can I get Slack/Telegram instead of email?**
-A: Not yet, but it's straightforward to add. See [Extension Guide](#extension-guide).
 
 **Q: How long does each run take?**
 A: 2-3 minutes for the full pipeline (collect → analyze → email).
