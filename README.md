@@ -689,9 +689,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- **Issues**: Check `logs/` directory for detailed error messages
-- **Documentation**: See full docs in [Documentation](#documentation) section
-- **Google ADK**: [Official Docs](https://developers.google.com/adk)
+- **Google ADK Documentation**: Available at https://google.github.io/adk-docs/
 
 ---
 
