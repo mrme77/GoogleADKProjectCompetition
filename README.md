@@ -659,8 +659,8 @@ See **[ARCHITECTURE.md](templates/ARCHITECTURE.md)** for complete extension guid
 
 ### Scaling
 
-- **Daily**: 33 articles × 3 runs = **99 articles/day**
-- **Monthly**: ~3,000 articles analyzed
+- **Daily**: 11 articles × 3 runs = **33 articles/day**
+- **Monthly**: ~1,000 articles analyzed
 - **Cost**: $0 (well within free tier)
 
 ### Optimization
