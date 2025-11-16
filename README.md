@@ -679,6 +679,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## Acknowledgments
 
 - **Google ADK Team** - For the excellent agent framework
+- **Kaggle** - For hosting the 5 Days Google AI Agents Intensive course
 - **Gemini API** - Powering all LLM intelligence
 - **spaCy** - Entity extraction and NER
 - **TextBlob** - Sentiment analysis
