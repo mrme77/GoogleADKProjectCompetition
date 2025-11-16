@@ -37,7 +37,7 @@ MANIS automates what humans don't have time for:
 - Compares how different outlets cover the same topics
 - Delivers professional HTML digests 3x daily
 
-**Example Output**: "Ukraine story covered by 5 sources - NPR (neutral, 85 credibility), Fox News (negative tone, right-leaning, 72 credibility), Reuters (neutral, 90 credibility)..."
+**Example Output**: "Ukraine story covered by 5 sources - Central News (neutral, 85 credibility), National Tribune (negative tone, right-leaning, 72 credibility), Global Wire (neutral, 90 credibility)..."
 
 ---
 
@@ -184,7 +184,7 @@ cp manis_agent/.env.example manis_agent/.env
 3. Search for **"App passwords"**
 4. Select: **App: Mail**, **Device: Other (Custom name)** → "MANIS"
 5. Click **Generate**
-6. Copy the 16-character password (e.g., `ciao come stai?`)
+6. Copy the 16-character password (e.g., `ciao come stai pass`)
 
 ### Step 3: Configure .env File
 
@@ -201,7 +201,7 @@ MANIS_RUN_MODE=daily
 
 # Gmail SMTP (REQUIRED for email delivery)
 GMAIL_ADDRESS=your_gmail@gmail.com       # ← Your Gmail address
-GMAIL_APP_PASSWORD="abcd efgh ijkl mnop"  # ← App password (keep quotes!)
+GMAIL_APP_PASSWORD="ciao come stai pass"  # ← App password (keep quotes!)
 ```
 
 **Verify configuration**:
@@ -472,7 +472,7 @@ python -c "import nltk; nltk.download('brown'); nltk.download('punkt')"
 **Solutions**:
 1. Verify 2-Step Verification is enabled: [Google Account Security](https://myaccount.google.com/security)
 2. Regenerate App Password
-3. Ensure quotes in .env: `GMAIL_APP_PASSWORD="xxxx xxxx xxxx xxxx"`
+3. Ensure quotes in .env: `GMAIL_APP_PASSWORD="ciao come stai pass"`
 4. Check no extra spaces: `GMAIL_ADDRESS=user@gmail.com` (no spaces)
 
 ---
@@ -485,10 +485,10 @@ python -c "import nltk; nltk.download('brown'); nltk.download('punkt')"
 
 ```bash
 # Correct
-GMAIL_APP_PASSWORD="abcd efgh ijkl mnop"
+GMAIL_APP_PASSWORD="ciao come stai pass"
 
 # Wrong
-GMAIL_APP_PASSWORD=abcd efgh ijkl mnop
+GMAIL_APP_PASSWORD=ciao come stai pass
 ```
 
 ---
