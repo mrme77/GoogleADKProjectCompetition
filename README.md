@@ -184,7 +184,7 @@ cp manis_agent/.env.example manis_agent/.env
 3. Search for **"App passwords"**
 4. Select: **App: Mail**, **Device: Other (Custom name)** → "MANIS"
 5. Click **Generate**
-6. Copy the 16-character password (e.g., `abcd efgh ijkl mnop`)
+6. Copy the 16-character password (e.g., `ciao come stai?`)
 
 ### Step 3: Configure .env File
 
