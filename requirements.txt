@@ -1,0 +1,33 @@
+# Google ADK Core
+google-adk==0.3.0
+google-generativeai==0.8.5
+litellm==1.66.3
+python-dotenv==1.1.0
+
+# News Collection
+feedparser==6.0.11
+requests==2.31.0
+beautifulsoup4==4.12.3
+lxml==5.1.0
+
+# NLP Processing
+spacy>=3.8.0  # Updated for Python 3.13 compatibility
+textblob==0.18.0.post0
+nltk==3.8.1
+
+# Gmail API (version managed by google-adk)
+google-api-python-client>=2.157.0
+google-auth-oauthlib==1.2.0
+google-auth-httplib2==0.2.0
+
+# Database (for future persistent storage)
+sqlalchemy>=2.0.36  # Updated for Python 3.13 compatibility
+
+# Utilities
+python-dateutil==2.8.2
+pytz==2024.1
+
+# Testing
+pytest>=8.0.0
+pytest-mock>=3.12.0
+pytest-asyncio>=0.23.0
