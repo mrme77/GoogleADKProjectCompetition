@@ -105,10 +105,10 @@ MANIS automates what humans don't have time for:
 
 <div align="center">
 
-![Agent Pipeline](<manis_agent/pictures/Screenshot 2025-11-15 at 6.23.40 PM.png>)
+![Agent Pipeline](manis_agent/pictures/pic1.png)
 *6-Stage Sequential Agent Pipeline*
 
-![Agent-Tool Relationships](<manis_agent/pictures/Screenshot 2025-11-15 at 6.23.52 PM.png>)
+![Agent-Tool Relationships](manis_agent/pictures/pic2.png)
 *Detailed Agent-Tool Relationships*
 
 </div>
@@ -401,7 +401,7 @@ Each digest includes **6 comprehensive sections**:
 
 <div align="center">
 
-![Sample Email Digest](<manis_agent/pictures/Screenshot 2025-11-15 at 8.08.41 PM.png>)
+![Sample Email Digest](manis_agent/pictures/pic3.png)
 *Sample Daily News Digest Output*
 
 </div>
