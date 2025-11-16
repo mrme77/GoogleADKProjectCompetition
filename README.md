@@ -101,6 +101,18 @@ MANIS automates what humans don't have time for:
                     (Shared state dictionary)
 ```
 
+**Visual Architecture Diagrams:**
+
+<div align="center">
+
+![Agent Pipeline](manis_agent/pictures/Screenshot%202025-11-15%20at%206.23.40%20PM.png)
+*6-Stage Sequential Agent Pipeline*
+
+![Agent-Tool Relationships](manis_agent/pictures/Screenshot%202025-11-15%20at%206.23.52%20PM.png)
+*Detailed Agent-Tool Relationships*
+
+</div>
+
 ### Agent Details
 
 | Agent | Model | Tools | Purpose |
@@ -387,6 +399,13 @@ crontab -r
 
 Each digest includes **6 comprehensive sections**:
 
+<div align="center">
+
+![Sample Email Digest](manis_agent/pictures/Screenshot%202025-11-15%20at%208.08.41%20PM.png)
+*Sample Daily News Digest Output*
+
+</div>
+
 ### 1. Executive Summary
 - Total articles analyzed per run
 - Time period coverage
@@ -552,6 +571,7 @@ manis/
 ├── manis_agent/                   # Main package
 │   ├── agent.py                   # Root SequentialAgent
 │   ├── .env                       # Configuration (gitignored)
+│   ├── pictures/                  # Architecture diagrams & screenshots
 │   └── agents/                    # 6-stage pipeline
 │       ├── collectors/
 │       │   └── google_news_collector/
