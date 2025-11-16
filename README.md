@@ -587,11 +587,9 @@ manis/
 ├── setup_cron.sh                  # Cron installer
 ├── requirements.txt               # Python dependencies
 ├── logs/                          # Execution logs (gitignored)
-├── README.md                      # This file
-├── SETUP_GUIDE.md                 # Detailed setup
-├── CRON_SETUP.md                  # Automation guide
-└── templates/
-    └── ARCHITECTURE.md            # Technical reference
+├── tests/                         # Unit tests
+│   └── unit/                      # Unit tests for tools
+└── README.md                      # This file
 ```
 
 ---
