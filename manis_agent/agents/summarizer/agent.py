@@ -15,7 +15,7 @@ summarizer_agent = Agent(
     FIRST, call the get_analysis_results tool to retrieve all analyzed articles and statistics.
     This tool returns:
     - current_date - Today's date in YYYY-MM-DD format
-    - articles - All articles with full analysis (sentiment, bias, credibility)
+    - articles - All articles with full analysis (sentiment, bias, credibility, category, sentiment_label, bias_label)
     - sentiment_stats - Sentiment distribution statistics
     - bias_analysis - Political bias comparison
     - top_keywords - Most frequent keywords
@@ -82,18 +82,8 @@ summarizer_agent = Agent(
     IMPORTANT: Process EVERY article in the articles array. Do NOT skip articles or use placeholders.
     DO NOT use white backgrounds for the cards. Keep them dark grey (#2d2d2d).
 
-    ## 4. SOURCE DIVERSITY & PERSPECTIVE ANALYSIS
-    <h2 style="color: #ffffff; font-size: 18px; margin-top: 30px; font-weight: bold;">3. SOURCE DIVERSITY & PERSPECTIVE ANALYSIS</h2>
-    <p style="color: #d0d0d0; font-size: 14px;">Use the actual source_diversity count and original_sources list from the tool response:</p>
-    <ul style="color: #d0d0d0; font-size: 14px; margin-left: 20px;">
-        Loop through the actual original_sources array and create <li style="color: #d0d0d0; font-size: 14px;"> for each real source name
-    </ul>
-    <p style="color: #d0d0d0; font-size: 14px;"><strong>Sentiment comparison across different sources:</strong> Describe the actual sentiment_stats data</p>
-    <p style="color: #d0d0d0; font-size: 14px;"><strong>Emotional language usage:</strong> Analyze the actual emotional_signals from bias_analysis</p>
-    <p style="color: #d0d0d0; font-size: 14px;"><strong>How different outlets frame the same topics:</strong> Use the actual bias_analysis data to describe real framing differences</p>
-
-    ## 5. CREDIBILITY ASSESSMENT
-    <h2 style="color: #ffffff; font-size: 18px; margin-top: 30px; font-weight: bold;">4. CREDIBILITY ASSESSMENT</h2>
+    ## 4. CREDIBILITY ASSESSMENT
+    <h2 style="color: #ffffff; font-size: 18px; margin-top: 30px; font-weight: bold;">3. CREDIBILITY ASSESSMENT</h2>
     <ul style="color: #d0d0d0; font-size: 14px; margin-left: 20px;">
         <li style="color: #d0d0d0; font-size: 14px;"><strong>Distribution:</strong> Calculate from actual credibility_stats (count high/medium/low)</li>
         <li style="color: #d0d0d0; font-size: 14px;"><strong>Average credibility score:</strong> Calculate from actual credibility_score values</li>
@@ -101,22 +91,33 @@ summarizer_agent = Agent(
     </ul>
     <p style="color: #d0d0d0; font-size: 14px;">Write a brief interpretation based on the real credibility data.</p>
 
-    ## 6. KEY THEMES & ENTITIES
-    <h2 style="color: #ffffff; font-size: 18px; margin-top: 30px; font-weight: bold;">5. KEY THEMES & ENTITIES</h2>
-    <p style="color: #d0d0d0; font-size: 14px;"><strong>Top 10 keywords:</strong></p>
-    <ul style="color: #d0d0d0; font-size: 14px; margin-left: 20px;">
-        Loop through the actual top_keywords array and create <li style="color: #d0d0d0; font-size: 14px;">keyword (count)</li> for each real keyword
-    </ul>
-    <p style="color: #d0d0d0; font-size: 14px;"><strong>Most mentioned people, organizations, locations:</strong></p>
-    <ul style="color: #d0d0d0; font-size: 14px; margin-left: 20px;">
-        <li style="color: #d0d0d0; font-size: 14px;"><strong>People:</strong> Extract actual person entities from the articles data</li>
-        <li style="color: #d0d0d0; font-size: 14px;"><strong>Organizations:</strong> Extract actual organization entities from the articles data</li>
-        <li style="color: #d0d0d0; font-size: 14px;"><strong>Locations:</strong> Extract actual location entities from the articles data</li>
-    </ul>
-    <p style="color: #d0d0d0; font-size: 14px;"><strong>Emerging topics and trends:</strong> Analyze the real keywords and entities data</p>
+    ## 5. COVERAGE ANALYSIS & MEDIA FRAMING
+    <h2 style="color: #ffffff; font-size: 18px; margin-top: 30px; font-weight: bold;">4. COVERAGE ANALYSIS & MEDIA FRAMING</h2>
 
-    ## 7. BOTTOM LINE
-    <h2 style="color: #ffffff; font-size: 18px; margin-top: 30px; font-weight: bold;">6. BOTTOM LINE</h2>
+    <p style="color: #d0d0d0; font-size: 14px;"><strong>Sentiment Distribution by Topic:</strong></p>
+    <ul style="color: #d0d0d0; font-size: 14px; margin-left: 20px;">
+        Group articles by their 'category' field (politics, technology, europe) and calculate sentiment breakdown for each topic.
+        For each topic, count articles with sentiment_label 'positive', 'negative', 'neutral' and show as percentages.
+        Example: <li style="color: #d0d0d0; font-size: 14px;">US Politics: 60% Negative, 30% Neutral, 10% Positive</li>
+    </ul>
+
+    <p style="color: #d0d0d0; font-size: 14px;"><strong>Source Perspective Differences:</strong></p>
+    <p style="color: #d0d0d0; font-size: 14px; margin-left: 20px;">
+        Analyze how different sources frame the same stories. Look at articles covering similar topics but from different sources.
+        Compare their sentiment_label and bias_label to identify framing differences.
+        Example: "Ukraine Coverage: BBC (neutral, factual) vs. Al Jazeera (critical tone) vs. Reuters (cautiously optimistic)"
+        Write 2-3 concrete examples based on the actual articles.
+    </p>
+
+    <p style="color: #d0d0d0; font-size: 14px;"><strong>Most Covered Topics (by article count):</strong></p>
+    <ul style="color: #d0d0d0; font-size: 14px; margin-left: 20px;">
+        Group articles by their main topic/theme (you can use keywords, category, or article titles to identify themes).
+        Count how many articles cover each major topic and list the top 3-5 topics.
+        Example: <li style="color: #d0d0d0; font-size: 14px;">Ukraine conflict developments (8 articles)</li>
+    </ul>
+
+    ## 6. BOTTOM LINE
+    <h2 style="color: #ffffff; font-size: 18px; margin-top: 30px; font-weight: bold;">5. BOTTOM LINE</h2>
     <p style="color: #d0d0d0; font-size: 14px;">Write 2-3 sentences summarizing the real key takeaways from today's actual articles.</p>
     <p style="color: #d0d0d0; font-size: 14px;"><strong>Notable perspective differences between sources:</strong> Describe real differences from the bias_analysis data</p>
     <p style="color: #d0d0d0; font-size: 14px;"><strong>Recommendations for further reading:</strong> Recommend actual articles based on their importance/credibility</p>

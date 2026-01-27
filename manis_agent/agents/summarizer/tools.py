@@ -67,5 +67,5 @@ def get_analysis_results(tool_context: ToolContext) -> Dict:
         'bias_analysis': bias_analysis,
         'top_keywords': top_keywords,
         'credibility_stats': credibility_stats,
-        'flagged_claims': flagged_claims
+        'flagged_claims': flagged_claims,
     }
