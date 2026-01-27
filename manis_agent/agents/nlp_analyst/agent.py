@@ -7,7 +7,7 @@ from .tools import analyze_sentiment, detect_political_bias, extract_keywords
 # NLP analyst agent
 nlp_analyst_agent = Agent(
     name="nlp_analyst",
-    model="gemini-2.5-flash",
+    model="openrouter/google/gemini-2.5-flash-lite-preview-09-2025",
     description="Analyzes articles for sentiment, political bias, and key themes",
     instruction="""
     You are an NLP analysis agent that performs deep content analysis on news articles.

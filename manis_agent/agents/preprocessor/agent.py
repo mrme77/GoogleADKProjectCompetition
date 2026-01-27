@@ -7,7 +7,7 @@ from .tools import preprocess_articles
 # Preprocessor agent
 preprocessor_agent = Agent(
     name="preprocessor",
-    model="gemini-2.0-flash-lite",
+    model="openrouter/google/gemini-2.5-flash-lite-preview-09-2025",
     description="Preprocesses collected articles by cleaning text and extracting entities and claims",
     instruction="""
     You are a text preprocessing agent that prepares news articles for analysis.

@@ -7,7 +7,7 @@ from .tools import score_article_credibility, flag_dubious_claims
 # Fact checker agent
 fact_checker_agent = Agent(
     name="fact_checker",
-    model="gemini-2.0-flash",
+    model="openrouter/google/gemini-2.5-flash-lite-preview-09-2025",
     description="Evaluates article credibility and flags claims needing verification",
     instruction="""
     You are a fact-checking agent that evaluates news article credibility.

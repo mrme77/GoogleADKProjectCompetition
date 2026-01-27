@@ -66,35 +66,3 @@ def get_analysis_results(tool_context: ToolContext) -> Dict:
         'credibility_stats': credibility_stats,
         'flagged_claims': flagged_claims
     }
-
-
-def store_digest(
-    digest_html: str,
-    tool_context: ToolContext
-) -> Dict:
-    """
-    Store the generated HTML digest in state for email delivery.
-
-    Args:
-        digest_html: The complete HTML digest content
-        tool_context: ADK tool context for state management
-
-    Returns:
-        Dictionary with storage confirmation
-    """
-    if not digest_html or not digest_html.strip():
-        return {
-            'success': False,
-            'error': 'Cannot store empty digest'
-        }
-
-    # Store digest in state
-    tool_context.state['daily_digest'] = digest_html
-    tool_context.state['digest_generated_at'] = datetime.now().isoformat()
-
-    return {
-        'success': True,
-        'message': 'Digest stored successfully and ready for delivery',
-        'digest_length': len(digest_html),
-        'stored_at': datetime.now().isoformat()
-    }

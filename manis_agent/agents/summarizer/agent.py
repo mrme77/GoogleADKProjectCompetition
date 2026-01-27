@@ -1,13 +1,13 @@
 """Summarizer agent for generating daily news digests."""
 
 from google.adk.agents import Agent
-from .tools import get_analysis_results, store_digest
+from .tools import get_analysis_results
 
 
 # Summarizer agent
 summarizer_agent = Agent(
     name="summarizer",
-    model="gemini-2.5-flash",
+    model="openrouter/google/gemini-2.5-flash-lite-preview-09-2025",
     description="Generates comprehensive daily news digest from analyzed articles",
     instruction="""
     You are a news digest summarizer that creates structured, insightful summaries.

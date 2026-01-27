@@ -1,7 +1,6 @@
 """RSS feed collection tool for Google News."""
 
 import feedparser
-import requests
 import json
 from datetime import datetime, timedelta
 from typing import Dict, List

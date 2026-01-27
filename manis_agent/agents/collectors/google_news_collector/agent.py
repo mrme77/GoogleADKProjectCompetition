@@ -7,7 +7,7 @@ from .tools import fetch_google_news_rss
 # Google News collector agent
 google_news_agent = Agent(
     name="google_news_collector",
-    model="gemini-2.0-flash-lite",
+    model="openrouter/google/gemini-2.5-flash-lite-preview-09-2025",
     description="Collects recent news articles from Google News RSS feeds (aggregated from multiple sources)",
     instruction="""
     You are a news collection agent. Your ONLY job is to fetch Google News articles.

@@ -40,7 +40,7 @@ def send_email_digest(
     Returns:
         Dictionary with send status
     """
-    # Get recipient email from environment
+    # Get recipient email(s) from environment (supports comma-separated list)
     recipient_email = os.getenv('RECIPIENT_EMAIL')
 
     if not recipient_email:
@@ -48,6 +48,9 @@ def send_email_digest(
             'success': False,
             'error': 'RECIPIENT_EMAIL not set in environment.'
         }
+
+    # Parse multiple recipients (comma-separated)
+    recipients = [email.strip() for email in recipient_email.split(',')]
 
     # Get daily digest from state
     digest_html = tool_context.state.get('daily_digest', '')
@@ -77,14 +80,14 @@ def send_email_digest(
         return send_via_smtp(
             gmail_address=gmail_address,
             gmail_password=gmail_password,
-            recipient_email=recipient_email,
+            recipients=recipients,
             digest_html=digest_html,
             tool_context=tool_context
         )
     else:
         # Fall back to Gmail API OAuth
         return send_via_gmail_api(
-            recipient_email=recipient_email,
+            recipients=recipients,
             digest_html=digest_html,
             tool_context=tool_context
         )
@@ -93,7 +96,7 @@ def send_email_digest(
 def send_via_smtp(
     gmail_address: str,
     gmail_password: str,
-    recipient_email: str,
+    recipients: list,
     digest_html: str,
     tool_context: ToolContext
 ) -> Dict:
@@ -103,7 +106,7 @@ def send_via_smtp(
     Args:
         gmail_address: Gmail sender address
         gmail_password: Gmail app password
-        recipient_email: Recipient email address
+        recipients: List of recipient email addresses
         digest_html: HTML content for email
         tool_context: ADK tool context
 
@@ -114,7 +117,7 @@ def send_via_smtp(
         # Create email message
         message = MIMEMultipart('alternative')
         message['From'] = gmail_address
-        message['To'] = recipient_email
+        message['To'] = ', '.join(recipients)
         message['Subject'] = f"MANIS Daily News Digest - {datetime.now().strftime('%B %d, %Y')}"
 
         # Add HTML body
@@ -133,7 +136,8 @@ def send_via_smtp(
         return {
             'success': True,
             'method': 'smtp',
-            'recipient': recipient_email,
+            'recipients': recipients,
+            'recipient_count': len(recipients),
             'sent_at': datetime.now().isoformat()
         }
 
@@ -145,7 +149,7 @@ def send_via_smtp(
 
 
 def send_via_gmail_api(
-    recipient_email: str,
+    recipients: list,
     digest_html: str,
     tool_context: ToolContext
 ) -> Dict:
@@ -153,7 +157,7 @@ def send_via_gmail_api(
     Send email via Gmail API with OAuth (fallback method).
 
     Args:
-        recipient_email: Email address to send digest to
+        recipients: List of recipient email addresses
         digest_html: HTML content for email
         tool_context: ADK tool context
 
@@ -179,9 +183,9 @@ def send_via_gmail_api(
         # Build Gmail service
         service = build('gmail', 'v1', credentials=creds)
 
-        # Create email message
+        # Create email message (Gmail API sends to all recipients in To field)
         message = create_email_message(
-            recipient=recipient_email,
+            recipients=recipients,
             subject=f"MANIS Daily News Digest - {datetime.now().strftime('%B %d, %Y')}",
             html_body=digest_html
         )
@@ -201,7 +205,8 @@ def send_via_gmail_api(
             'success': True,
             'method': 'gmail_api',
             'message_id': result.get('id'),
-            'recipient': recipient_email,
+            'recipients': recipients,
+            'recipient_count': len(recipients),
             'sent_at': datetime.now().isoformat()
         }
 
@@ -254,12 +259,12 @@ def authenticate_gmail():
     return creds
 
 
-def create_email_message(recipient: str, subject: str, html_body: str) -> Dict:
+def create_email_message(recipients: list, subject: str, html_body: str) -> Dict:
     """
     Create a properly formatted email message for Gmail API.
 
     Args:
-        recipient: Recipient email address
+        recipients: List of recipient email addresses
         subject: Email subject line
         html_body: HTML content for email body
 
@@ -267,7 +272,7 @@ def create_email_message(recipient: str, subject: str, html_body: str) -> Dict:
         Dictionary formatted for Gmail API
     """
     message = MIMEMultipart('alternative')
-    message['to'] = recipient
+    message['to'] = ', '.join(recipients)
     message['subject'] = subject
 
     # Add HTML body
