@@ -96,7 +96,8 @@ class TestFetchGoogleNewsRSS:
             result = fetch_google_news_rss('technology', 5, mock_tool_context)
 
             # Assert - should not exceed max_articles
-            assert len(result['articles']) <= 5
+            collected = mock_tool_context.state.get('collected_articles', [])
+            assert len(collected) <= 5
 
     def test_fetch_google_news_handles_network_error(self, mock_tool_context):
         """Test graceful handling of network errors."""
@@ -212,3 +213,25 @@ class TestFetchGoogleNewsRSS:
 
                 # Assert - should not fail validation
                 assert 'error' not in result or 'Invalid topic' not in result.get('error', '')
+
+    def test_fetch_google_news_sets_original_source_and_region(self, mock_tool_context):
+        """Test that original_source is set and region matches Europe topic."""
+        with patch('manis_agent.agents.collectors.google_news_collector.tools.feedparser.parse') as mock_parse:
+            mock_feed = MagicMock()
+            entry = MagicMock()
+            entry.title = 'EU Parliament Debates AI Act - Reuters'
+            entry.link = 'https://example.com/eu-ai'
+            entry.published_parsed = datetime.now(timezone.utc).timetuple()
+            entry.summary = 'EU lawmakers discuss AI regulation updates.'
+            entry.source = {'title': 'Reuters'}
+            mock_feed.entries = [entry]
+            mock_parse.return_value = mock_feed
+
+            result = fetch_google_news_rss('europe', 5, mock_tool_context)
+
+            assert result['success'] is True
+            collected = mock_tool_context.state.get('collected_articles', [])
+            assert len(collected) == 1
+            article = collected[0]
+            assert article['original_source'] == 'Reuters'
+            assert article['region'] == 'EU/International'

@@ -105,7 +105,7 @@ def detect_political_bias(tool_context: ToolContext) -> Dict:
     Detect political bias indicators in article language.
 
     Uses keyword analysis and framing patterns to identify bias signals.
-    Compares Fox News vs Google News coverage.
+    Aggregates bias signals by source across collected articles.
 
     Args:
         tool_context: ADK tool context with NLP analyzed articles

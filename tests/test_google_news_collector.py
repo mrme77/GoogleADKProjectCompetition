@@ -38,14 +38,10 @@ def test_google_news_collector():
         print(f"ERROR: {politics_result['error']}")
 
     if 'debug_info' in politics_result:
-        debug = politics_result['debug_info']
         print("\nDEBUG INFO:")
-        print(f"  - Total RSS entries available: {debug.get('total_rss_entries', 'N/A')}")
-        print(f"  - Entries checked: {debug.get('entries_checked', 'N/A')}")
-        print(f"  - Entries too old (>48hrs): {debug.get('entries_too_old', 'N/A')}")
-        print(f"  - Entries with parse failures: {debug.get('entries_parse_failed', 'N/A')}")
-        print(f"  - Entries missing titles: {debug.get('entries_missing_title', 'N/A')}")
-        print(f"  - Cutoff time: {debug.get('cutoff_time', 'N/A')}")
+        print("  - Note: debug_info is optional and intended to explain why collection failed.")
+        print("  - The collector currently only returns a brief string (e.g., feed status) on empty feeds.")
+        print(f"  - Raw debug_info: {politics_result['debug_info']}")
 
     print()
 
@@ -66,14 +62,10 @@ def test_google_news_collector():
         print(f"ERROR: {tech_result['error']}")
 
     if 'debug_info' in tech_result:
-        debug = tech_result['debug_info']
         print("\nDEBUG INFO:")
-        print(f"  - Total RSS entries available: {debug.get('total_rss_entries', 'N/A')}")
-        print(f"  - Entries checked: {debug.get('entries_checked', 'N/A')}")
-        print(f"  - Entries too old (>48hrs): {debug.get('entries_too_old', 'N/A')}")
-        print(f"  - Entries with parse failures: {debug.get('entries_parse_failed', 'N/A')}")
-        print(f"  - Entries missing titles: {debug.get('entries_missing_title', 'N/A')}")
-        print(f"  - Cutoff time: {debug.get('cutoff_time', 'N/A')}")
+        print("  - Note: debug_info is optional and intended to explain why collection failed.")
+        print("  - The collector currently only returns a brief string (e.g., feed status) on empty feeds.")
+        print(f"  - Raw debug_info: {tech_result['debug_info']}")
 
     print()
     print("=" * 80)

@@ -38,8 +38,11 @@ def get_analysis_results(tool_context: ToolContext) -> Dict:
     if not bias_analyzed_articles:
         bias_analyzed_articles = tool_context.state.get('collected_articles', [])
 
-    # Count articles by source
-    google_news_articles = [a for a in bias_analyzed_articles if isinstance(a, dict) and 'Google News' in a.get('source', '')]
+    # Count articles by aggregator
+    google_news_articles = [
+        a for a in bias_analyzed_articles
+        if isinstance(a, dict) and a.get('aggregator') == 'Google News'
+    ]
 
     # Extract unique original sources for diversity analysis
     original_sources = set()

@@ -18,7 +18,7 @@
 
 ## Overview
 
-MANIS is a fully autonomous **6-stage multi-agent pipeline** that collects news from multiple sources via Google News, analyzes sentiment and political bias, scores credibility, and delivers intelligent email digests to your inbox 3 times daily—completely hands-free.
+MANIS is a fully autonomous **6-stage multi-agent pipeline** that collects news from multiple sources via Google News, analyzes sentiment and political bias, scores credibility, and delivers intelligent email digests to your inbox—completely hands-free.
 
 ### The Problem
 
@@ -49,13 +49,13 @@ MANIS automates what humans don't have time for:
 - ✅ **Sentiment Analysis**: Positive/negative/neutral tone detection (TextBlob)
 - ✅ **Bias Detection**: Identifies left/center/right framing patterns
 - ✅ **Credibility Scoring**: 0-100 reliability scores for 15+ major news sources
-- ✅ **Entity Extraction**: People, organizations, locations (spaCy NER)
+- ✅ **Entity Extraction**: People, organizations, locations (lightweight regex heuristics)
 - ✅ **Comparative Analysis**: Shows how different sources frame the same stories
 
 ### Delivery & Automation
 
 - ✅ **Professional HTML Emails**: 6-section digest with all insights
-- ✅ **Automated Scheduling**: Runs 3x daily (7:30 AM, 12:30 PM, 4:30 PM) via cron
+- ✅ **Automated Scheduling**: Optional cron scheduling via `setup_cron.sh`
 - ✅ **Gmail Integration**: SMTP delivery with app password authentication
 - ✅ **Comprehensive Logging**: Timestamped logs for debugging
 
@@ -80,7 +80,7 @@ MANIS automates what humans don't have time for:
 │  [1. Collector] ──> Fetches from Google News RSS (11 articles)  │
 │        │                                                        │
 │        ▼                                                        │
-│  [2. Preprocessor] ──> Cleans text, extracts entities (spaCy)   │
+│  [2. Preprocessor] ──> Cleans text, extracts entities (regex)   │
 │        │                                                        │
 │        ▼                                                        │
 │  [3. Fact Checker] ──> Scores credibility, detects bias         │
@@ -117,12 +117,12 @@ MANIS automates what humans don't have time for:
 
 | Agent | Model | Tools | Purpose |
 |-------|-------|-------|---------|
-| **Collector** | gemini-2.0-flash-lite | `fetch_google_news_rss` | Fetch RSS feeds from 3 topics |
-| **Preprocessor** | gemini-2.0-flash-lite | `preprocess_articles` | Clean text, extract entities (spaCy) |
-| **Fact Checker** | gemini-2.0-flash | `score_credibility`, `flag_claims` | Score source reliability |
-| **NLP Analyst** | gemini-2.5-flash | `analyze_sentiment`, `detect_bias`, `extract_keywords` | Sentiment & bias analysis |
-| **Summarizer** | gemini-2.5-flash | `get_analysis_results` | Generate HTML digest |
-| **Email Delivery** | gemini-2.0-flash-lite | `send_email_digest` | Send via Gmail SMTP |
+| **Collector** | gemini-2.5-flash-lite-preview-09-2025 | `fetch_google_news_rss` | Fetch RSS feeds from 3 topics |
+| **Preprocessor** | gemini-2.5-flash-lite-preview-09-2025 | `preprocess_articles` | Clean text, extract entities (regex) |
+| **Fact Checker** | gemini-2.5-flash-lite-preview-09-2025 | `score_credibility`, `flag_claims` | Score source reliability |
+| **NLP Analyst** | gemini-2.5-flash-lite-preview-09-2025 | `analyze_sentiment`, `detect_bias`, `extract_keywords` | Sentiment & bias analysis |
+| **Summarizer** | gemini-2.5-flash-lite-preview-09-2025 | `get_analysis_results` | Generate HTML digest |
+| **Email Delivery** | gemini-2.5-flash-lite-preview-09-2025 | `send_email_digest` | Send via Gmail SMTP |
 
 ### Data Flow
 
@@ -134,6 +134,12 @@ Raw RSS → [+metadata] → [+entities, claims] → [+credibility scores]
 
 State keys: collected_articles → preprocessed_articles → fact_checked_articles
          → nlp_analyzed_articles → daily_digest → email_sent
+
+Article metadata includes:
+- `source`: original outlet name (e.g., Reuters)
+- `original_source`: explicit outlet name for diversity reporting
+- `aggregator`: Google News
+- `region`: `US` or `EU/International` (for Europe topic)
 ```
 
 ---
@@ -162,15 +168,11 @@ source adk-env/bin/activate  # On Windows: adk-env\Scripts\activate
 pip install google-adk[database]==0.3.0
 pip install -r requirements.txt
 
-# 4. Download NLP models
-python -m spacy download en_core_web_sm
-python -c "import nltk; nltk.download('brown'); nltk.download('punkt')"
-
-# 5. Configure environment
+# 4. Configure environment
 cp manis_agent/.env.example manis_agent/.env
 # Edit manis_agent/.env with your credentials (see Configuration below)
 
-# 6. Test run
+# 5. Test run
 ./run_manis.sh
 ```
 

@@ -200,8 +200,8 @@ def fetch_google_news_rss(
                 'url': actual_url,  # Resolved direct URL
                 'source': source,
                 'aggregator': 'Google News',
-                'political_leaning': 'aggregated',
-                'region': 'US',
+                'original_source': source,
+                'region': 'EU/International' if topic == 'europe' else 'US',
                 'category': topic,
                 'timestamp': pub_date.isoformat(),
                 'description': str(clean_description),
