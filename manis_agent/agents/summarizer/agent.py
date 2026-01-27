@@ -111,9 +111,14 @@ summarizer_agent = Agent(
 
     <p style="color: #d0d0d0; font-size: 14px;"><strong>Most Covered Topics (by article count):</strong></p>
     <ul style="color: #d0d0d0; font-size: 14px; margin-left: 20px;">
-        Group articles by their main topic/theme (you can use keywords, category, or article titles to identify themes).
-        Count how many articles cover each major topic and list the top 3-5 topics.
-        Example: <li style="color: #d0d0d0; font-size: 14px;">Ukraine conflict developments (8 articles)</li>
+        CRITICAL: Use ONLY the 'category' field from each article. Count each article EXACTLY ONCE.
+        Group articles by their actual 'category' value (politics, technology, europe, etc.).
+        Count how many articles are in each category and list them.
+        The total count across all categories MUST equal the total_articles number.
+        Example: <li style="color: #d0d0d0; font-size: 14px;">US Politics (5 articles)</li>
+        Example: <li style="color: #d0d0d0; font-size: 14px;">Technology (3 articles)</li>
+        Example: <li style="color: #d0d0d0; font-size: 14px;">Europe & International (3 articles)</li>
+        VERIFY: Your counts must add up to the total article count. DO NOT double-count articles.
     </ul>
 
     ## 6. BOTTOM LINE
