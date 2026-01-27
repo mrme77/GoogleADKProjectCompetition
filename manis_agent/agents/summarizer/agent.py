@@ -14,7 +14,7 @@ summarizer_agent = Agent(
 
     FIRST, call the get_analysis_results tool to retrieve all analyzed articles and statistics.
     This tool returns:
-    - current_date - Today's date in YYYY-MM-DD format (USE THIS for the Date field in the digest!)
+    - current_date - Today's date in YYYY-MM-DD format
     - articles - All articles with full analysis (sentiment, bias, credibility)
     - sentiment_stats - Sentiment distribution statistics
     - bias_analysis - Political bias comparison
@@ -22,63 +22,128 @@ summarizer_agent = Agent(
     - credibility_stats - Source credibility statistics
     - flagged_claims - Claims needing verification
 
-    IMPORTANT: Use the 'current_date' field from the tool response as the Date in your digest.
-    Do NOT make up dates or use placeholders!
+    CRITICAL RULES:
+    1. Use ONLY the actual data from the tool response
+    2. NEVER output placeholder text like "[Article Title]", "[Source Name]", "[Description]", etc.
+    3. Use the REAL article titles, sources, summaries, sentiment scores, credibility scores from the data
+    4. Use the REAL current_date value for the digest date
+    5. If any data is missing, skip that field or say "Not available" - but NEVER use brackets or placeholder text
 
-    Create a comprehensive HTML-formatted daily digest with these sections:
+    Create a comprehensive HTML-formatted daily digest with the following structure:
 
-    ## 1. EXECUTIVE SUMMARY
-    - Brief overview (2-3 sentences) of today's news landscape
-    - Total articles analyzed (from Google News aggregated sources)
-    - Time period and key themes
-    - Coverage areas: US Politics, Technology, European/Ukraine News
+    ## HTML Structure
 
-    ## 2. ARTICLES BY TOPIC
+    Start with:
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #f0f0f0; background-color: #1e1e1e; padding: 20px; max-width: 900px; margin: 0 auto;">
 
-    Group articles by topic (US Politics / Technology / Europe & International), and for each article show:
-    - **[Title]** - [Original Source from Google News]
-    - Summary: [2-3 sentence summary]
-    - Sentiment: [positive/negative/neutral] (polarity score)
-    - Credibility: [score/100]
-    - Key entities: [list]
-    - [Link to article]
+    IMPORTANT: Use inline styles on EVERY element for email compatibility.
 
-    ## 3. SOURCE DIVERSITY & PERSPECTIVE ANALYSIS
-    - List the variety of original sources collected (e.g., NPR, WSJ, Guardian, etc.)
-    - Sentiment comparison across different sources
-    - Emotional language usage
-    - How different outlets (left/center/right) frame the same topics
-    - Perspective differences on shared topics
+    Then create these sections using REAL data from the tool response:
 
-    ## 4. CREDIBILITY ASSESSMENT
-    - Distribution: [X high, Y medium, Z low credibility articles]
-    - Average credibility score across all sources
-    - Flagged claims needing verification (if any)
+    ## 1. Title
+    Use the actual current_date value with inline dark theme style:
+    <h1 style="color: #4a9eff; border-bottom: 2px solid #4a9eff; padding-bottom: 10px; font-size: 24px; margin: 20px 0;">Daily News Intelligence Report - 2026-01-26</h1>
 
-    ## 5. KEY THEMES & ENTITIES
-    - Top 10 keywords
-    - Most mentioned people, organizations, locations
-    - Emerging topics and trends
+    ## 2. EXECUTIVE SUMMARY
+    <h2 style="color: #ffffff; font-size: 18px; margin-top: 30px; font-weight: bold;">1. EXECUTIVE SUMMARY</h2>
+    <p style="color: #d0d0d0; font-size: 14px; line-height: 1.6;">Write 2-3 sentences describing the actual news landscape based on the real articles.</p>
+    <ul style="color: #d0d0d0; font-size: 14px; margin-left: 20px;">
+        <li style="color: #d0d0d0; font-size: 14px;"><strong>Total articles analyzed:</strong> Use the actual total_articles count</li>
+        <li style="color: #d0d0d0; font-size: 14px;"><strong>Time Period:</strong> Use the actual current_date value</li>
+        <li style="color: #d0d0d0; font-size: 14px;"><strong>Key Themes:</strong> List the actual themes from the real articles</li>
+        <li style="color: #d0d0d0; font-size: 14px;"><strong>Coverage Areas:</strong> US Politics, Technology, European/Ukraine News</li>
+    </ul>
 
-    ## 6. BOTTOM LINE
-    - What you need to know from today's news
-    - Notable perspective differences between sources
-    - Recommendations for further reading
+    ## 3. ARTICLES BY TOPIC
+    <h2 style="color: #ffffff; font-size: 18px; margin-top: 30px; font-weight: bold;">2. ARTICLES BY TOPIC</h2>
+
+    Group articles by their actual 'category' field (politics, technology, europe).
+    Use these topic headings with inline styles:
+    <h3 style="color: #cccccc; font-size: 16px; margin-top: 20px; margin-bottom: 10px;">US Politics</h3>
+    <h3 style="color: #cccccc; font-size: 16px; margin-top: 20px; margin-bottom: 10px;">Technology</h3>
+    <h3 style="color: #cccccc; font-size: 16px; margin-top: 20px; margin-bottom: 10px;">Europe & International</h3>
+
+    For EACH real article in the articles array, create a card with inline dark styles:
+    <div style="background-color: #2d2d2d; padding: 15px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #444;">
+        <div style="font-weight: bold; color: #ffffff; margin-bottom: 8px; font-size: 15px;">Actual Article Title from data - Actual Source from data</div>
+        <p style="margin: 5px 0; font-size: 13px; color: #d0d0d0;"><strong>Summary:</strong> Write a real 2-3 sentence summary of the article</p>
+        <p style="margin: 5px 0; font-size: 13px; color: #d0d0d0;"><strong>Sentiment:</strong> Use actual sentiment label (actual polarity score)</p>
+        <p style="margin: 5px 0; font-size: 13px; color: #d0d0d0;"><strong>Credibility:</strong> Use actual credibility_score/100</p>
+        <p style="margin: 5px 0; font-size: 13px; color: #d0d0d0;"><strong>Key entities:</strong> Use actual entities from data</p>
+        <p style="margin: 5px 0; font-size: 13px;"><a href="actual-url-from-data" style="color: #4a9eff; text-decoration: none;">Link to article</a></p>
+    </div>
+
+    IMPORTANT: Process EVERY article in the articles array. Do NOT skip articles or use placeholders.
+    DO NOT use white backgrounds for the cards. Keep them dark grey (#2d2d2d).
+
+    ## 4. SOURCE DIVERSITY & PERSPECTIVE ANALYSIS
+    <h2 style="color: #ffffff; font-size: 18px; margin-top: 30px; font-weight: bold;">3. SOURCE DIVERSITY & PERSPECTIVE ANALYSIS</h2>
+    <p style="color: #d0d0d0; font-size: 14px;">Use the actual source_diversity count and original_sources list from the tool response:</p>
+    <ul style="color: #d0d0d0; font-size: 14px; margin-left: 20px;">
+        Loop through the actual original_sources array and create <li style="color: #d0d0d0; font-size: 14px;"> for each real source name
+    </ul>
+    <p style="color: #d0d0d0; font-size: 14px;"><strong>Sentiment comparison across different sources:</strong> Describe the actual sentiment_stats data</p>
+    <p style="color: #d0d0d0; font-size: 14px;"><strong>Emotional language usage:</strong> Analyze the actual emotional_signals from bias_analysis</p>
+    <p style="color: #d0d0d0; font-size: 14px;"><strong>How different outlets frame the same topics:</strong> Use the actual bias_analysis data to describe real framing differences</p>
+
+    ## 5. CREDIBILITY ASSESSMENT
+    <h2 style="color: #ffffff; font-size: 18px; margin-top: 30px; font-weight: bold;">4. CREDIBILITY ASSESSMENT</h2>
+    <ul style="color: #d0d0d0; font-size: 14px; margin-left: 20px;">
+        <li style="color: #d0d0d0; font-size: 14px;"><strong>Distribution:</strong> Calculate from actual credibility_stats (count high/medium/low)</li>
+        <li style="color: #d0d0d0; font-size: 14px;"><strong>Average credibility score:</strong> Calculate from actual credibility_score values</li>
+        <li style="color: #d0d0d0; font-size: 14px;"><strong>Flagged claims needing verification:</strong> Use actual flagged_claims data or "None"</li>
+    </ul>
+    <p style="color: #d0d0d0; font-size: 14px;">Write a brief interpretation based on the real credibility data.</p>
+
+    ## 6. KEY THEMES & ENTITIES
+    <h2 style="color: #ffffff; font-size: 18px; margin-top: 30px; font-weight: bold;">5. KEY THEMES & ENTITIES</h2>
+    <p style="color: #d0d0d0; font-size: 14px;"><strong>Top 10 keywords:</strong></p>
+    <ul style="color: #d0d0d0; font-size: 14px; margin-left: 20px;">
+        Loop through the actual top_keywords array and create <li style="color: #d0d0d0; font-size: 14px;">keyword (count)</li> for each real keyword
+    </ul>
+    <p style="color: #d0d0d0; font-size: 14px;"><strong>Most mentioned people, organizations, locations:</strong></p>
+    <ul style="color: #d0d0d0; font-size: 14px; margin-left: 20px;">
+        <li style="color: #d0d0d0; font-size: 14px;"><strong>People:</strong> Extract actual person entities from the articles data</li>
+        <li style="color: #d0d0d0; font-size: 14px;"><strong>Organizations:</strong> Extract actual organization entities from the articles data</li>
+        <li style="color: #d0d0d0; font-size: 14px;"><strong>Locations:</strong> Extract actual location entities from the articles data</li>
+    </ul>
+    <p style="color: #d0d0d0; font-size: 14px;"><strong>Emerging topics and trends:</strong> Analyze the real keywords and entities data</p>
+
+    ## 7. BOTTOM LINE
+    <h2 style="color: #ffffff; font-size: 18px; margin-top: 30px; font-weight: bold;">6. BOTTOM LINE</h2>
+    <p style="color: #d0d0d0; font-size: 14px;">Write 2-3 sentences summarizing the real key takeaways from today's actual articles.</p>
+    <p style="color: #d0d0d0; font-size: 14px;"><strong>Notable perspective differences between sources:</strong> Describe real differences from the bias_analysis data</p>
+    <p style="color: #d0d0d0; font-size: 14px;"><strong>Recommendations for further reading:</strong> Recommend actual articles based on their importance/credibility</p>
+
+    </body>
+    </html>
 
     ---
 
-    IMPORTANT OUTPUT FORMATTING:
-    - After calling get_analysis_results, generate a complete HTML email digest
-    - Return ONLY the HTML code in your response - nothing else
-    - DO NOT wrap it in markdown code fences (no ```html markers)
-    - DO NOT use the store_digest tool - just return the HTML directly
-    - Start with <html> or <div> tags
-    - Use proper HTML tags: <h1>, <h2>, <p>, <ul>, <li>, <strong>, <a href="">
-    - Include inline CSS for better email rendering
-    - Be concise but comprehensive
-    - Be objective and analytical
+    CRITICAL REMINDERS:
+    - Use REAL data from the tool response for EVERYTHING
+    - NEVER output text in brackets like [this] or placeholders like "Article Title Placeholder"
+    - Process ALL articles in the articles array - don't skip any
+    - Use actual values for dates, scores, sources, titles, URLs
+    - If a field is missing, write "Not available" instead of placeholder text
+    - Be specific and concrete - write about the actual articles you received
 
-    Return the complete HTML digest as your response.
+    OUTPUT FORMATTING:
+    - Return ONLY the raw HTML code.
+    - START your response immediately with "<!DOCTYPE html>".
+    - END your response immediately with "</html>".
+    - DO NOT write "Here is the digest" or any other conversational text.
+    - DO NOT use markdown code fences (no ```html).
+    - DO NOT include the "Data Summary from Tool Response" or any debug info.
+    - DO NOT include markdown headers like '###' or '**' at the start of the response.
+
+    Return the complete HTML digest with REAL data only.
     """,
     tools=[get_analysis_results],
     output_key="daily_digest"

@@ -9,9 +9,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 # Load environment variables from .env file
-set -a
-source manis_agent/.env
-set +a
+# (Now handled by manis_agent/__init__.py, but we keep the comment for clarity)
+# set -a
+# source manis_agent/.env
+# set +a
 
 # Path to ADK in virtual environment
 ADK_CMD="$SCRIPT_DIR/adk-env/bin/adk"

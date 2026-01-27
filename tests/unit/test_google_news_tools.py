@@ -12,9 +12,19 @@ class TestFetchGoogleNewsRSS:
     def test_fetch_google_news_success(self, mock_tool_context, mock_rss_feed_data):
         """Test successful RSS fetch returns correct structure."""
         with patch('manis_agent.agents.collectors.google_news_collector.tools.feedparser.parse') as mock_parse:
-            # Setup mock feed data
+            # Setup mock feed data - convert dict entries to objects
             mock_feed = MagicMock()
-            mock_feed.entries = mock_rss_feed_data['entries']
+            entries = []
+            for item in mock_rss_feed_data['entries']:
+                entry = MagicMock()
+                entry.title = item['title']
+                entry.link = item['link']
+                entry.summary = item['summary']
+                entry.published_parsed = item['published_parsed']
+                entry.source = item['source']
+                entries.append(entry)
+            
+            mock_feed.entries = entries
             mock_parse.return_value = mock_feed
 
             # Execute
@@ -22,12 +32,15 @@ class TestFetchGoogleNewsRSS:
 
             # Assert
             assert result['success'] is True
-            assert 'articles' in result
-            assert isinstance(result['articles'], list)
-            assert len(result['articles']) > 0
-
-            # Check article structure
-            article = result['articles'][0]
+            # The tool returns 'articles': [] in the return value, but populates state['collected_articles']
+            # So we check 'count' or look at the state
+            assert result['count'] > 0
+            
+            # Check collected articles in state
+            assert 'collected_articles' in mock_tool_context.state
+            assert len(mock_tool_context.state['collected_articles']) > 0
+            
+            article = mock_tool_context.state['collected_articles'][0]
             assert 'title' in article
             assert 'url' in article
             assert 'source' in article
@@ -134,6 +147,54 @@ class TestFetchGoogleNewsRSS:
             # Assert - state should be updated
             assert 'collected_articles' in mock_tool_context.state
             assert len(mock_tool_context.state['collected_articles']) > 0
+
+    def test_fetch_google_news_filters_sports(self, mock_tool_context):
+        """Test that sports articles are filtered out from technology topic."""
+        with patch('manis_agent.agents.collectors.google_news_collector.tools.feedparser.parse') as mock_parse:
+            # Setup mock feed with mix of tech and sports articles
+            mock_feed = MagicMock()
+            
+            # 1. Valid tech article
+            entry1 = MagicMock()
+            entry1.title = 'New AI Model Released'
+            entry1.link = 'https://example.com/ai'
+            entry1.published_parsed = datetime.now(timezone.utc).timetuple()
+            entry1.summary = 'Google releases new AI model.'
+            entry1.source = {'title': 'TechCrunch'}
+            
+            # 2. Sports article (Georgia Tech football)
+            entry2 = MagicMock()
+            entry2.title = 'Georgia Tech Wins Football Game'
+            entry2.link = 'https://example.com/gatech'
+            entry2.published_parsed = datetime.now(timezone.utc).timetuple()
+            entry2.summary = 'The Yellow Jackets scored a touchdown in the final quarter.'
+            entry2.source = {'title': 'ESPN'}
+            
+            # 3. Sports article (Virginia Tech basketball)
+            entry3 = MagicMock()
+            entry3.title = 'Virginia Tech Basketball Schedule'
+            entry3.link = 'https://example.com/vatech'
+            entry3.published_parsed = datetime.now(timezone.utc).timetuple()
+            entry3.summary = 'The Hokies announce their 2026 season roster.'
+            entry3.source = {'title': 'Sports Illustrated'}
+            
+            mock_feed.entries = [entry1, entry2, entry3]
+            mock_parse.return_value = mock_feed
+
+            # Execute
+            result = fetch_google_news_rss('technology', 5, mock_tool_context)
+
+            # Assert
+            assert result['success'] is True
+            
+            # Should have only 1 article (the AI one)
+            # The tool updates state['collected_articles'], and returns empty list in result['articles']
+            # But it returns 'count' in the result dict
+            assert result['count'] == 1
+            
+            collected = mock_tool_context.state['collected_articles']
+            assert len(collected) == 1
+            assert collected[0]['title'] == 'New AI Model Released'
 
     def test_fetch_google_news_all_topics(self, mock_tool_context):
         """Test that all valid topics work correctly."""

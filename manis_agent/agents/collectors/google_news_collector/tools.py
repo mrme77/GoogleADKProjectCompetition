@@ -1,11 +1,66 @@
 """RSS feed collection tool for Google News."""
 
 import feedparser
+import requests
 import json
 from datetime import datetime, timedelta
 from typing import Dict, List
 from bs4 import BeautifulSoup
 from google.adk.tools.tool_context import ToolContext
+
+
+def resolve_google_news_url(google_url: str, timeout: int = 5) -> str:
+    """
+    Resolve Google News redirect URL to get the actual article URL.
+
+    Google News RSS feeds return URLs like:
+    https://news.google.com/rss/articles/CBMi...
+
+    This function follows the redirect to get the actual article URL.
+
+    Args:
+        google_url: Google News redirect URL
+        timeout: Request timeout in seconds (default: 5)
+
+    Returns:
+        Actual article URL, or original URL if resolution fails
+    """
+    # If URL doesn't look like a Google News redirect, return as-is
+    if not google_url or 'news.google.com' not in google_url:
+        return google_url
+
+    try:
+        # Follow redirects with a short timeout
+        response = requests.head(
+            google_url,
+            allow_redirects=True,
+            timeout=timeout,
+            headers={
+                'User-Agent': 'Mozilla/5.0 (compatible; MANIS/1.0; +https://github.com/yourusername/manis)'
+            }
+        )
+
+        # Return the final URL after all redirects
+        final_url = response.url
+
+        # If we still have a google.com URL, try GET request (some redirects need it)
+        if 'google.com' in final_url and final_url != google_url:
+            response = requests.get(
+                google_url,
+                allow_redirects=True,
+                timeout=timeout,
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (compatible; MANIS/1.0; +https://github.com/yourusername/manis)'
+                }
+            )
+            final_url = response.url
+
+        return final_url
+
+    except (requests.RequestException, Exception) as e:
+        # If redirect resolution fails, return original URL
+        print(f"[URL RESOLVE] Failed to resolve {google_url[:60]}... - {str(e)}")
+        return google_url
 
 
 def fetch_google_news_rss(
@@ -14,7 +69,7 @@ def fetch_google_news_rss(
     tool_context: ToolContext
 ) -> Dict:
     """
-    Fetch recent articles from Google News RSS feeds.
+    Fetch recent articles from Google News RSS feeds with URL resolution.
 
     Args:
         topic: News topic ('politics', 'technology', or 'europe')
@@ -30,20 +85,26 @@ def fetch_google_news_rss(
         tool_context.state['collected_articles'] = []
 
     # Google News RSS search URLs
-    # Format: https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en
-
     topic_queries = {
         'politics': 'US+politics+OR+election+OR+congress+OR+senate+OR+white+house',
-        'technology': 'technology+OR+tech+OR+AI+OR+cybersecurity+OR+software',
-        'europe': 'Europe+OR+European+Union+OR+Ukraine+war+OR+Russia+Ukraine+OR+NATO+OR+EU+OR+tragedy+Europe'
+        'technology': 'technology+OR+tech+OR+AI+OR+cybersecurity+OR+software+-football+-basketball+-sports+-athletics',
+        'europe': 'Europe+OR+European+Union+OR+Ukraine+war+OR+Russia+Ukraine+OR+NATO+OR+EU'
     }
 
     if topic not in topic_queries:
         return {
             'success': False,
-            'error': f'Invalid topic: {topic}. Use "politics" or "technology".',
+            'error': f'Invalid topic: {topic}. Use "politics", "technology", or "europe".',
             'articles': []
         }
+    
+    # Filter keywords to exclude sports content from technology results
+    # This prevents matches like "Georgia Tech Football" or "Virginia Tech Basketball"
+    sports_filter_keywords = [
+        'football', 'basketball', 'baseball', 'soccer', 'athletics', 
+        'touchdown', 'quarterback', 'tournament', 'championship', 
+        'varsity', 'recruit', 'roster', 'score', 'game', 'season'
+    ]
 
     try:
         # Build Google News RSS URL
@@ -62,61 +123,62 @@ def fetch_google_news_rss(
             }
 
         articles = []
-        cutoff_time = datetime.utcnow() - timedelta(hours=48)  # Use UTC to match RSS feed timestamps
+        cutoff_time = datetime.utcnow() - timedelta(hours=48)
 
-        # Debugging counters
-        total_entries = len(feed.entries)
-        entries_checked = 0
-        entries_too_old = 0
-        entries_parse_failed = 0
-        entries_missing_title = 0
+        print(f"[GOOGLE NEWS DEBUG] Starting loop for topic '{topic}' - checking up to {max_articles * 3} entries")
 
-        print(f"[GOOGLE NEWS DEBUG] Starting loop for topic '{topic}' - checking up to {max_articles * 3} entries (out of {total_entries} total)")
-        print(f"[GOOGLE NEWS DEBUG] Cutoff time (UTC): {cutoff_time.isoformat()}")
-        print(f"[GOOGLE NEWS DEBUG] Current time (UTC): {datetime.utcnow().isoformat()}")
-
-        for entry in feed.entries[:max_articles * 3]:  # Fetch extra in case some are old
-            entries_checked += 1
-            entry_title = getattr(entry, 'title', 'NO TITLE')[:60]
-            print(f"[GOOGLE NEWS DEBUG] Entry #{entries_checked}: {entry_title}")
-
-            # Parse publication date with better error handling
+        for entry in feed.entries[:max_articles * 3]:
+            # Parse publication date
             try:
                 if hasattr(entry, 'published_parsed') and entry.published_parsed:
                     pub_date = datetime(*entry.published_parsed[:6])
-                    print(f"[GOOGLE NEWS DEBUG]   Date: {pub_date.isoformat()} (from published_parsed)")
                 elif hasattr(entry, 'updated_parsed') and entry.updated_parsed:
                     pub_date = datetime(*entry.updated_parsed[:6])
-                    print(f"[GOOGLE NEWS DEBUG]   Date: {pub_date.isoformat()} (from updated_parsed)")
                 else:
-                    # If no date available, skip this article
-                    print(f"[GOOGLE NEWS DEBUG]   ❌ SKIP: No date fields found")
-                    entries_parse_failed += 1
                     continue
-            except Exception as e:
-                # Log the error but skip this article instead of using now()
-                print(f"[GOOGLE NEWS DEBUG]   ❌ SKIP: Date parse error: {e}")
-                entries_parse_failed += 1
+            except Exception:
                 continue
 
             # Only include articles from last 48 hours
             if pub_date < cutoff_time:
-                print(f"[GOOGLE NEWS DEBUG]   ❌ SKIP: Too old ({pub_date.isoformat()} < {cutoff_time.isoformat()})")
-                entries_too_old += 1
                 continue
 
-            # Extract title with better handling for empty/None values
+            # Extract title
             title = None
             if hasattr(entry, 'title') and entry.title:
                 title = str(entry.title).strip()
 
-            # Skip articles without titles
             if not title:
-                print(f"[GOOGLE NEWS DEBUG]   ❌ SKIP: No title found")
-                entries_missing_title += 1
                 continue
 
-            print(f"[GOOGLE NEWS DEBUG]   ✅ Title OK: {title[:50]}")
+            # Extract clean description
+            description = str(entry.get('summary', entry.get('description', '')))
+            soup = BeautifulSoup(description, 'html.parser')
+            clean_description = str(soup.get_text().strip())
+
+            # Filter out sports articles from technology category
+            if topic == 'technology':
+                text_to_check = (title + " " + clean_description).lower()
+                is_sports = False
+                
+                # Check for "Tech" university names combined with sports terms
+                # (e.g., "Georgia Tech", "Virginia Tech", "Texas Tech")
+                university_tech_indicators = ['georgia tech', 'virginia tech', 'texas tech', 'louisiana tech']
+                has_university_tech = any(u in text_to_check for u in university_tech_indicators)
+                
+                # If it mentions a "Tech" university, be very aggressive with sports filtering
+                if has_university_tech:
+                    if any(sport in text_to_check for sport in sports_filter_keywords):
+                        is_sports = True
+                else:
+                    # Otherwise just check for strong sports indicators
+                    sports_hits = sum(1 for sport in sports_filter_keywords if f" {sport} " in f" {text_to_check} ")
+                    if sports_hits >= 2:  # Require at least 2 keywords to be safe
+                        is_sports = True
+                
+                if is_sports:
+                    print(f"[GOOGLE NEWS DEBUG]   Skipping sports article: {title[:50]}...")
+                    continue
 
             # Extract source from title (Google News format: "Title - Source")
             source = 'Google News'
@@ -126,36 +188,34 @@ def fetch_google_news_rss(
                     title = title_parts[0].strip()
                     source = title_parts[1].strip()
 
-            # Extract clean text from description/summary
-            description = str(entry.get('summary', entry.get('description', '')))
-            soup = BeautifulSoup(description, 'html.parser')
-            clean_description = str(soup.get_text().strip())
+            # Get URL and resolve redirects to actual article URLs
+            raw_url = str(entry.link) if hasattr(entry, 'link') else ''
+            actual_url = resolve_google_news_url(raw_url)
+
+            print(f"[GOOGLE NEWS DEBUG]   ✅ {title[:50]} - {source}")
+            print(f"[GOOGLE NEWS DEBUG]   URL: {actual_url[:70]}")
 
             article = {
                 'title': title,
-                'url': str(entry.link) if hasattr(entry, 'link') else '',
-                'source': source,  # Use original source name directly
+                'url': actual_url,  # Resolved direct URL
+                'source': source,
                 'aggregator': 'Google News',
-                'political_leaning': 'aggregated',  # Google News aggregates from multiple sources
+                'political_leaning': 'aggregated',
                 'region': 'US',
                 'category': topic,
                 'timestamp': pub_date.isoformat(),
                 'description': str(clean_description),
-                'text': str(clean_description)  # For MVP, using description as text
+                'text': str(clean_description)
             }
 
-            # Article passed all filters - add it
             articles.append(article)
-            print(f"[GOOGLE NEWS DEBUG]   ✅ COLLECTED article #{len(articles)}: {title[:50]}")
 
             if len(articles) >= max_articles:
-                print(f"[GOOGLE NEWS DEBUG] Reached max_articles ({max_articles}), breaking loop")
                 break
 
-        # Debug summary
-        print(f"[GOOGLE NEWS DEBUG] Loop complete for '{topic}'. Collected {len(articles)} articles before JSON validation")
+        print(f"[GOOGLE NEWS DEBUG] Collected {len(articles)} articles for '{topic}'")
 
-        # Verify all articles are JSON serializable before storing
+        # Verify JSON serializable
         try:
             json.dumps(articles)
         except (TypeError, ValueError) as e:
@@ -172,18 +232,10 @@ def fetch_google_news_rss(
 
         return {
             'success': True,
-            'source': 'Google News',
+            'source': 'Google News RSS',
             'topic': topic,
             'count': len(articles),
-            'articles': [],  # Don't return articles in response to avoid duplication in state
-            'debug_info': {
-                'total_rss_entries': total_entries,
-                'entries_checked': entries_checked,
-                'entries_too_old': entries_too_old,
-                'entries_parse_failed': entries_parse_failed,
-                'entries_missing_title': entries_missing_title,
-                'cutoff_time': cutoff_time.isoformat()
-            }
+            'articles': []
         }
 
     except Exception as e:

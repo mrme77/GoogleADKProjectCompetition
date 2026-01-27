@@ -1,6 +1,7 @@
 """Unit tests for email delivery tools."""
 
 import pytest
+import smtplib
 from unittest.mock import Mock, patch, MagicMock
 import os
 from manis_agent.agents.delivery.tools import send_email_digest, send_via_smtp
@@ -54,7 +55,7 @@ class TestSendEmailDigest:
                 mock_smtp.return_value = {
                     'success': True,
                     'method': 'smtp',
-                    'recipient': 'recipient@example.com'
+                    'recipients': ['recipient@example.com']
                 }
 
                 # Execute
@@ -88,6 +89,55 @@ class TestSendEmailDigest:
                 digest_arg = call_args.kwargs['digest_html']
                 assert '```' not in digest_arg
                 assert '<html>' in digest_arg
+                assert 'Test' in digest_arg
+
+    def test_send_email_cleans_conversational_text(self, mock_tool_context):
+        """Test that conversational text before/after HTML is removed."""
+        # Setup - digest with chatter and fences
+        mock_tool_context.state['daily_digest'] = """
+        Here is the report you asked for.
+        I found 5 articles.
+        
+        ```html
+        <!DOCTYPE html>
+        <html>
+        <head><title>Digest</title></head>
+        <body>
+            <h1>Daily News</h1>
+        </body>
+        </html>
+        ```
+        
+        Hope this helps!
+        """
+
+        env_vars = {
+            'RECIPIENT_EMAIL': 'recipient@example.com',
+            'GMAIL_ADDRESS': 'sender@gmail.com',
+            'GMAIL_APP_PASSWORD': 'test password'
+        }
+
+        with patch.dict(os.environ, env_vars):
+            with patch('manis_agent.agents.delivery.tools.send_via_smtp') as mock_smtp:
+                mock_smtp.return_value = {'success': True}
+
+                # Execute
+                send_email_digest(mock_tool_context)
+
+                # Assert - check that ONLY HTML remains
+                call_args = mock_smtp.call_args
+                digest_arg = call_args.kwargs['digest_html']
+                
+                # Should not contain chatter
+                assert "Here is the report" not in digest_arg
+                assert "Hope this helps" not in digest_arg
+                assert "```" not in digest_arg
+                
+                # Should contain HTML
+                assert "<!DOCTYPE html>" in digest_arg
+                assert "</html>" in digest_arg
+                assert digest_arg.startswith("<!DOCTYPE html>")
+                assert digest_arg.endswith("</html>")
 
     def test_send_email_fallback_to_api(self, mock_tool_context):
         """Test fallback to Gmail API when SMTP credentials missing."""
@@ -123,7 +173,7 @@ class TestSendViaSMTP:
             result = send_via_smtp(
                 gmail_address='sender@gmail.com',
                 gmail_password='test_password',
-                recipient_email='recipient@example.com',
+                recipients=['recipient@example.com'],
                 digest_html=digest_html,
                 tool_context=mock_tool_context
             )
@@ -131,7 +181,7 @@ class TestSendViaSMTP:
             # Assert
             assert result['success'] is True
             assert result['method'] == 'smtp'
-            assert 'recipient' in result
+            assert 'recipients' in result
 
             # Verify SMTP methods called
             mock_server.login.assert_called_once_with('sender@gmail.com', 'test_password')
@@ -152,7 +202,7 @@ class TestSendViaSMTP:
             result = send_via_smtp(
                 gmail_address='sender@gmail.com',
                 gmail_password='wrong_password',
-                recipient_email='recipient@example.com',
+                recipients=['recipient@example.com'],
                 digest_html=digest_html,
                 tool_context=mock_tool_context
             )
@@ -175,14 +225,14 @@ class TestSendViaSMTP:
             result = send_via_smtp(
                 gmail_address='sender@gmail.com',
                 gmail_password='test_password',
-                recipient_email='recipient@example.com',
+                recipients=['recipient@example.com'],
                 digest_html=digest_html,
                 tool_context=mock_tool_context
             )
 
             # Assert - state should be updated
             assert mock_tool_context.state.get('email_sent') is True
-            assert 'delivery_status' in mock_tool_context.state
+            assert 'email_method' in mock_tool_context.state
 
     def test_smtp_message_structure(self, mock_tool_context):
         """Test that email message is properly structured."""
@@ -197,7 +247,7 @@ class TestSendViaSMTP:
             send_via_smtp(
                 gmail_address='sender@gmail.com',
                 gmail_password='test_password',
-                recipient_email='recipient@example.com',
+                recipients=['recipient@example.com'],
                 digest_html=digest_html,
                 tool_context=mock_tool_context
             )

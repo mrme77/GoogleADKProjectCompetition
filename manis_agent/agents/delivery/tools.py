@@ -61,15 +61,35 @@ def send_email_digest(
             'error': 'No daily digest found in state. Run summarizer first.'
         }
 
-    # Clean up any markdown code fences that might have slipped through
+    # aggressive HTML extraction/sanitization
+    # 1. Decode generic markdown fences first
+    if "```html" in digest_html:
+        parts = digest_html.split("```html")
+        if len(parts) > 1:
+            digest_html = parts[1]
+            if "```" in digest_html:
+                digest_html = digest_html.split("```")[0]
+    elif "```" in digest_html:
+         parts = digest_html.split("```")
+         if len(parts) > 1:
+             digest_html = parts[1]
+
+    # 2. Find the HTML envelope to discard conversational preambles/postscripts
+    lower_digest = digest_html.lower()
+    start_idx = lower_digest.find("<!doctype html>")
+    if start_idx == -1:
+        start_idx = lower_digest.find("<html>")
+    
+    end_idx = lower_digest.rfind("</html>")
+
+    if start_idx != -1 and end_idx != -1:
+        # Extract from start of tag to end of closing tag
+        digest_html = digest_html[start_idx : end_idx + 7]  # +7 for </html>
+    
+    # 3. Last resort cleanup for stray markdown headers if HTML envelope finding failed or left some behind
     digest_html = digest_html.strip()
-    if digest_html.startswith('```html'):
-        digest_html = digest_html[7:]  # Remove ```html
-    if digest_html.startswith('```'):
-        digest_html = digest_html[3:]  # Remove ```
-    if digest_html.endswith('```'):
-        digest_html = digest_html[:-3]  # Remove trailing ```
-    digest_html = digest_html.strip()
+    while digest_html.startswith(('#', '*')):
+        digest_html = digest_html.lstrip('#* ')
 
     # Check if SMTP credentials are available (preferred method)
     gmail_password = os.getenv('GMAIL_APP_PASSWORD')

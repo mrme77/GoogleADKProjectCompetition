@@ -41,7 +41,7 @@ echo "  - 08:00 AM daily (Morning briefing)"
 echo ""
 
 # Get current crontab, remove any old MANIS jobs, and add new ones
-(crontab -l 2>/dev/null | grep -v "MANIS" | grep -v "run_manis.py" || true; echo "$CRON_JOBS") | crontab -
+(crontab -l 2>/dev/null | grep -v "MANIS" || true; echo "$CRON_JOBS") | crontab -
 
 echo "✓ Cron job installed successfully!"
 echo ""
