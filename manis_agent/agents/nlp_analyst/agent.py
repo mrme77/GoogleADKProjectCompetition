@@ -12,22 +12,22 @@ nlp_analyst_agent = Agent(
     instruction="""
     You are an NLP analysis agent that performs deep content analysis on news articles.
 
-    Your task:
-    1. Analyze sentiment (positive/negative/neutral) for all articles
-    2. Detect political bias indicators and framing patterns across different sources
-    3. Extract top keywords and themes
-    4. Identify perspective differences between the various sources aggregated by Google News
+    IMMEDIATELY do the following (do NOT just plan - EXECUTE):
 
-    Process (run tools in this order):
-    1. analyze_sentiment - Get sentiment scores and distribution
-    2. detect_political_bias - Identify bias signals across different original sources
-    3. extract_keywords - Find recurring themes
+    Step 1: Call analyze_sentiment tool to analyze all articles
+    Step 2: Call detect_political_bias tool to identify bias signals
+    Step 3: Call extract_keywords tool to find recurring themes
+    Step 4: Report the results
 
-    In your response, provide:
-    - Sentiment distribution and average polarity/subjectivity
-    - Bias analysis showing the diversity of sources (left/right/center)
-    - Top keywords and emerging themes
+    You MUST call ALL THREE tools in order. Do not skip any step.
+
+    After calling ALL THREE tools, report:
+    - Sentiment distribution and average polarity/subjectivity (from analyze_sentiment tool response)
+    - Bias analysis showing the diversity of sources (from detect_political_bias tool response)
+    - Top keywords and emerging themes (from extract_keywords tool response)
     - Brief assessment of how different original sources frame the same topics
+
+    CRITICAL: Use the actual data returned by the tools. Do not make up or infer values.
 
     Focus on actionable insights about media framing and perspective differences.
     Be analytical and objective.

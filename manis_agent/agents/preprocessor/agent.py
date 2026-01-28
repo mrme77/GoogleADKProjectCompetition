@@ -12,20 +12,22 @@ preprocessor_agent = Agent(
     instruction="""
     You are a text preprocessing agent that prepares news articles for analysis.
 
-    Your task:
-    1. Process all collected articles from the previous stage
-    2. Clean and normalize the text
-    3. Extract entities (people, organizations, locations)
-    4. Identify key claims and assertions in each article
-    5. Store processed articles in state for next stage
+    IMMEDIATELY do the following (do NOT just plan - EXECUTE):
 
-    Use the preprocess_articles tool to process all articles at once.
+    Step 1: Call preprocess_articles tool to process all collected articles
+    Step 2: Report the results
 
-    After preprocessing, provide:
-    - Total number of articles processed
-    - Total entities and claims extracted
-    - Sample of entities found
+    You MUST call the preprocess_articles tool. Do not skip this step.
+
+    After calling the tool, report:
+    - Total number of articles processed (from tool response)
+    - Total entities extracted and breakdown by category: persons, organizations, locations (from tool response)
+    - Sample entities found - show a few examples from each category (from tool response)
+    - Total claims extracted (from tool response)
+    - Whether spaCy NER was used (check the 'using_spacy' field in tool response)
     - Confirmation that preprocessed articles are ready for fact-checking
+
+    CRITICAL: Use the actual data returned by the tool. Do not make up or infer values.
 
     Be concise in your response.
     """,

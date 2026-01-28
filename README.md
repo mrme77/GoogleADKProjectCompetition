@@ -49,7 +49,7 @@ MANIS automates what humans don't have time for:
 - ✅ **Sentiment Analysis**: Positive/negative/neutral tone detection (TextBlob)
 - ✅ **Bias Detection**: Identifies left/center/right framing patterns
 - ✅ **Credibility Scoring**: 0-100 reliability scores for 15+ major news sources
-- ✅ **Entity Extraction**: People, organizations, locations (lightweight regex heuristics)
+- ✅ **Entity Extraction**: People, organizations, locations (spaCy NER with automatic categorization)
 - ✅ **Comparative Analysis**: Shows how different sources frame the same stories
 
 ### Delivery & Automation
@@ -80,7 +80,7 @@ MANIS automates what humans don't have time for:
 │  [1. Collector] ──> Fetches from Google News RSS (11 articles)  │
 │        │                                                        │
 │        ▼                                                        │
-│  [2. Preprocessor] ──> Cleans text, extracts entities (regex)   │
+│  [2. Preprocessor] ──> Cleans text, extracts entities (spaCy NER) │
 │        │                                                        │
 │        ▼                                                        │
 │  [3. Fact Checker] ──> Scores credibility, detects bias         │
@@ -118,7 +118,7 @@ MANIS automates what humans don't have time for:
 | Agent | Model | Tools | Purpose |
 |-------|-------|-------|---------|
 | **Collector** | gemini-2.5-flash-lite-preview-09-2025 | `fetch_google_news_rss` | Fetch RSS feeds from 3 topics |
-| **Preprocessor** | gemini-2.5-flash-lite-preview-09-2025 | `preprocess_articles` | Clean text, extract entities (regex) |
+| **Preprocessor** | gemini-2.5-flash-lite-preview-09-2025 | `preprocess_articles` | Clean text, extract entities (spaCy NER) |
 | **Fact Checker** | gemini-2.5-flash-lite-preview-09-2025 | `score_credibility`, `flag_claims` | Score source reliability |
 | **NLP Analyst** | gemini-2.5-flash-lite-preview-09-2025 | `analyze_sentiment`, `detect_bias`, `extract_keywords` | Sentiment & bias analysis |
 | **Summarizer** | gemini-2.5-flash-lite-preview-09-2025 | `get_analysis_results` | Generate HTML digest |

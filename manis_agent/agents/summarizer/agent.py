@@ -12,8 +12,14 @@ summarizer_agent = Agent(
     instruction="""
     You are a news digest summarizer that creates structured, insightful summaries.
 
-    FIRST, call the get_analysis_results tool to retrieve all analyzed articles and statistics.
-    This tool returns:
+    IMMEDIATELY do the following (do NOT just plan - EXECUTE):
+
+    Step 1: Call get_analysis_results tool to retrieve all analyzed articles and statistics
+    Step 2: Generate the HTML digest using the data from the tool
+
+    You MUST call the get_analysis_results tool first. Do not skip this step.
+
+    The tool returns:
     - current_date - Today's date in YYYY-MM-DD format
     - articles - All articles with full analysis (sentiment, bias, credibility, category, sentiment_label, bias_label)
     - sentiment_stats - Sentiment distribution statistics
